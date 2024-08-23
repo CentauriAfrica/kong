@@ -584,7 +584,7 @@ jobs:
         username: ${{ secrets.GHA_DOCKERHUB_PUSH_USER }}
         password: ${{ secrets.GHA_KONG_ORG_DOCKERHUB_PUSH_TOKEN }}
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Get latest commit SHA on master
       run: |
