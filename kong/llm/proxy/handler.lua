@@ -11,7 +11,8 @@ local llm_state = require("kong.llm.state")
 local cjson = require("cjson.safe")
 local kong_utils = require("kong.tools.gzip")
 local buffer = require "string.buffer"
-local strip = require("kong.tools.utils").strip
+local strip = require("kong.tools.string").strip
+local cycle_aware_deep_copy = require("kong.tools.table").cycle_aware_deep_copy
 
 
 local EMPTY = require("kong.tools.table").EMPTY
@@ -346,7 +347,7 @@ function _M:access(conf)
       end
 
       request_table = kong.request.get_body(content_type, nil, conf.max_request_body_size)
-      llm_state.set_request_body_table(request_table)
+      llm_state.set_request_body_table(cycle_aware_deep_copy(request_table))
     end
 
     if not request_table then
@@ -445,7 +446,7 @@ function _M:access(conf)
   end
 
   -- execute pre-request hooks for "all" drivers before set new body
-  local ok, err = ai_shared.pre_request(conf_m, parsed_request_body)
+  local ok, err = ai_shared.pre_request(conf_m, parsed_request_body or request_table)
   if not ok then
     return bail(400, err)
   end
